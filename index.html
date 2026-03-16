@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta charset="UTF-8">
 <title>Rifa Solidária</title>
@@ -27,10 +26,6 @@ border-radius:8px;
 cursor:pointer;
 }
 
-button:hover{
-background:#218838;
-}
-
 </style>
 
 </head>
@@ -45,9 +40,7 @@ background:#218838;
 
 <p>Valor de cada número: R$5</p>
 
-<p>Total de números: 2000</p>
-
-<p>Ajude participando da nossa rifa solidária!</p>
+<p id="disponiveis">Carregando números disponíveis...</p>
 
 <br>
 
@@ -56,6 +49,23 @@ background:#218838;
 </a>
 
 </div>
+
+<script>
+
+async function carregarDisponiveis(){
+
+const response = await fetch("/api/numeros");
+
+const data = await response.json();
+
+document.getElementById("disponiveis").innerText =
+"Números disponíveis: " + data.disponiveis;
+
+}
+
+carregarDisponiveis();
+
+</script>
 
 </body>
 </html>
