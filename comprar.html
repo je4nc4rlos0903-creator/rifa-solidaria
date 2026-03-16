@@ -1,34 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Escolher número</title>
+
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+}
+
+.grid{
+display:grid;
+grid-template-columns: repeat(10,60px);
+gap:10px;
+justify-content:center;
+margin-top:40px;
+}
+
+.numero{
+padding:12px;
+background:#28a745;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.vendido{
+background:#dc3545;
+cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Escolha seu número</h1>
+
 <div class="grid" id="numeros"></div>
 
 <script>
 
+const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
+
 async function carregarNumeros(){
 
-const response = await fetch("/api/listar-numeros");
+const r = await fetch(
+SUPABASE_URL+"/rest/v1/numeros_rifa?select=numero,status&order=numero.asc",
+{
+headers:{
+apikey:SUPABASE_KEY,
+Authorization:"Bearer "+SUPABASE_KEY
+}
+}
+);
 
-const numeros = await response.json();
+const numeros = await r.json();
 
 const container = document.getElementById("numeros");
 
+container.innerHTML="";
+
 numeros.forEach(n=>{
 
-let div = document.createElement("div");
+let div=document.createElement("div");
 
-div.innerText = n.numero;
-
-div.className = n.status=="pago" ? "numero vendido":"numero";
+div.innerText=n.numero;
 
 if(n.status=="disponivel"){
 
-div.onclick = async ()=>{
+div.className="numero";
 
-const r = await fetch("/api/criar-pagamento");
+div.onclick=async()=>{
 
-const d = await r.json();
+const response = await fetch("/api/criar-pagamento");
 
-window.location.href = d.link;
+const data = await response.json();
+
+window.location.href=data.link;
 
 };
+
+}else{
+
+div.className="numero vendido";
 
 }
 
@@ -41,3 +101,7 @@ container.appendChild(div);
 carregarNumeros();
 
 </script>
+
+</body>
+
+</html>
