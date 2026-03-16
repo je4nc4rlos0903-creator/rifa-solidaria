@@ -7,7 +7,7 @@ supabaseUrl+"/rest/v1/numeros_rifa?select=numero,status",
 {
 headers:{
 apikey:"sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2",
-Authorization:"Bearer SUA_CHAVE_PUBLICA"
+Authorization:"Bearer sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2"
 }
 }
 );
