@@ -6,8 +6,8 @@ const response = await fetch(
 supabaseUrl+"/rest/v1/numeros_rifa?status=eq.disponivel&select=numero",
 {
 headers:{
-apikey:"SUA_CHAVE_PUBLICA",
-Authorization:"Bearer SUA_CHAVE_PUBLICA"
+apikey:"sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2",
+Authorization:"Bearer sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2"
 }
 }
 );
