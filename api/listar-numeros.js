@@ -6,7 +6,7 @@ const response = await fetch(
 supabaseUrl+"/rest/v1/numeros_rifa?select=numero,status",
 {
 headers:{
-apikey:"SUA_CHAVE_PUBLICA",
+apikey:"sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2",
 Authorization:"Bearer SUA_CHAVE_PUBLICA"
 }
 }
