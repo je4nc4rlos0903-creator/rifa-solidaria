@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Escolher número</title>
+
+<style>
+
+body{
+font-family: Arial;
+text-align:center;
+}
+
+.grid{
+display:grid;
+grid-template-columns: repeat(10,60px);
+gap:10px;
+justify-content:center;
+margin-top:50px;
+}
+
+.numero{
+padding:15px;
+background:#4CAF50;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.numero:hover{
+background:#3e8e41;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Escolha seu número</h1>
+
+<div class="grid" id="numeros"></div>
+
+<script>
+
+const container = document.getElementById("numeros");
+
+for(let i=1;i<=2000;i++){
+
+let n = document.createElement("div");
+
+n.className="numero";
+
+n.innerText = i;
+
+n.onclick = async ()=>{
+
+const response = await fetch("/api/criar-pagamento");
+
+const data = await response.json();
+
+window.location.href = data.link;
+
+};
+
+container.appendChild(n);
+
+}
+
+</script>
+
+</body>
+
+</html>
