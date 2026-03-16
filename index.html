@@ -41,7 +41,7 @@ cursor:pointer;
 
 <p>Valor de cada número: R$5</p>
 
-<p id="disponiveis">Carregando...</p>
+<p id="disponiveis">Carregando números...</p>
 
 <br>
 
@@ -54,12 +54,13 @@ cursor:pointer;
 <script>
 
 const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
+
 const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 
 async function carregarDisponiveis(){
 
-const r = await fetch(
-SUPABASE_URL + "/rest/v1/numeros_rifa?status=eq.disponivel&select=numero",
+const response = await fetch(
+SUPABASE_URL+"/rest/v1/numeros_rifa?status=eq.disponivel&select=numero",
 {
 headers:{
 apikey:SUPABASE_KEY,
@@ -68,10 +69,10 @@ Authorization:"Bearer "+SUPABASE_KEY
 }
 );
 
-const data = await r.json();
+const data = await response.json();
 
 document.getElementById("disponiveis").innerText =
-"Números disponíveis: " + data.length;
+"Números disponíveis: "+data.length;
 
 }
 
@@ -80,5 +81,4 @@ carregarDisponiveis();
 </script>
 
 </body>
-
 </html>
