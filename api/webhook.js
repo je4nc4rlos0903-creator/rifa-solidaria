@@ -8,10 +8,6 @@ export default async function handler(req, res){
 
       const paymentId = body.data?.id;
 
-      if(!paymentId){
-        return res.status(200).send("ok");
-      }
-
       const response = await fetch(
         `https://api.mercadopago.com/v1/payments/${paymentId}`,
         {
@@ -27,6 +23,7 @@ export default async function handler(req, res){
 
         const numeros = payment.metadata?.numeros || [];
         const nome = payment.metadata?.nome || "";
+        const telefone = payment.metadata?.telefone || "";
 
         for(let num of numeros){
 
@@ -41,7 +38,8 @@ export default async function handler(req, res){
               },
               body: JSON.stringify({
                 status:"pago",
-                nome: nome
+                nome,
+                telefone
               })
             }
           );
