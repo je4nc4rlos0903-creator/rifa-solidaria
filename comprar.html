@@ -5,27 +5,119 @@
 <title>Comprar Rifa</title>
 
 <style>
-body{font-family:Arial;text-align:center}
-.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:20px}
-.num{padding:10px;border:1px solid #000;cursor:pointer}
-.selecionado{background:green;color:white}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  text-align:center;
+  padding:30px;
+
+  background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+              url("fundo.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+}
+
+.container{
+  backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.55);
+  padding:30px;
+  border-radius:20px;
+  max-width:900px;
+  margin:auto;
+  box-shadow:0 0 30px rgba(0,0,0,0.6);
+}
+
+h1{
+  margin-bottom:20px;
+}
+
+input{
+  padding:12px;
+  margin:10px;
+  width:200px;
+  border-radius:10px;
+  border:none;
+  outline:none;
+  font-size:16px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:8px;
+  margin-top:20px;
+}
+
+.num{
+  padding:12px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.1);
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.num:hover{
+  background: rgba(255,255,255,0.3);
+}
+
+.selecionado{
+  background:#00ff88;
+  color:black;
+  font-weight:bold;
+}
+
+#resumo{
+  margin-top:20px;
+  font-size:18px;
+}
+
+button{
+  margin-top:20px;
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:30px;
+  background: linear-gradient(45deg, #00ff88, #00ccff);
+  color:black;
+  cursor:pointer;
+  transition:0.3s;
+  font-weight:bold;
+}
+
+button:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px #00ff88;
+}
+
 </style>
 
 </head>
 <body>
 
-<h1>Escolha seus números</h1>
+<div class="container">
 
-<input type="text" id="nome" placeholder="Seu nome">
-<br><br>
-<input type="text" id="telefone" placeholder="Seu telefone">
-<br><br>
+  <h1>Escolha seus números 🎯</h1>
 
-<div id="grid" class="grid"></div>
+  <input type="text" id="nome" placeholder="Seu nome">
+  <input type="text" id="telefone" placeholder="Seu telefone">
 
-<h2 id="resumo"></h2>
+  <div id="grid" class="grid"></div>
 
-<button onclick="pagar()">Pagar</button>
+  <h2 id="resumo"></h2>
+
+  <button onclick="pagar()">💰 Pagar</button>
+
+</div>
 
 <script>
 
@@ -34,7 +126,7 @@ const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 
 let selecionados = [];
 
-// BUSCAR NÚMEROS
+// BUSCAR NÚMEROS DISPONÍVEIS
 fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?status=eq.disponivel`, {
   headers:{
     apikey: SUPABASE_KEY,
@@ -44,14 +136,7 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?status=eq.disponivel`, {
 .then(res => res.json())
 .then(data => {
 
-  console.log("NUMEROS:", data);
-
   const grid = document.getElementById("grid");
-
-  if(!data || data.length === 0){
-    grid.innerHTML = "<p>Nenhum número disponível</p>";
-    return;
-  }
 
   data.forEach(n => {
 
@@ -75,10 +160,6 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?status=eq.disponivel`, {
 
   });
 
-})
-.catch(err=>{
-  console.error("ERRO:", err);
-  alert("Erro ao carregar números");
 });
 
 // RESUMO
@@ -111,7 +192,6 @@ async function pagar(){
 
   try {
 
-    // RESERVAR NÚMEROS
     for(let num of selecionados){
 
       await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
@@ -130,7 +210,6 @@ async function pagar(){
 
     }
 
-    // GERAR PAGAMENTO
     const res = await fetch("/api/pagar",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
