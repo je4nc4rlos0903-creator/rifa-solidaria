@@ -18,10 +18,10 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding-top:100px;
+  padding-top:80px;
   text-align:center;
 
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+  background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
               url("fundo.jpg");
 
   background-size: cover;
@@ -31,25 +31,43 @@ body{
 }
 
 .container{
-  backdrop-filter: blur(10px);
-  background: rgba(0,0,0,0.5);
-  padding:40px;
-  border-radius:20px;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.55);
+  padding:50px;
+  border-radius:25px;
+  box-shadow:0 0 30px rgba(0,0,0,0.6);
+  max-width:400px;
 }
 
 h1{
-  font-size:40px;
-  margin-bottom:20px;
+  font-size:38px;
+  margin-bottom:10px;
 }
 
-p{
-  font-size:18px;
+.sub{
+  font-size:16px;
+  margin-bottom:25px;
+  opacity:0.8;
+}
+
+.info{
+  text-align:left;
   margin-bottom:30px;
 }
 
+.info p{
+  margin:8px 0;
+  font-size:18px;
+}
+
+.destaque{
+  color:#00ff88;
+  font-weight:bold;
+}
+
 button{
-  padding:15px 30px;
+  width:100%;
+  padding:15px;
   font-size:18px;
   border:none;
   border-radius:30px;
@@ -57,11 +75,16 @@ button{
   color:black;
   cursor:pointer;
   transition:0.3s;
+  font-weight:bold;
 }
 
 button:hover{
-  transform:scale(1.1);
-  box-shadow:0 0 15px #00ff88;
+  transform:scale(1.05);
+  box-shadow:0 0 20px #00ff88;
+}
+
+button:active{
+  transform:scale(0.97);
 }
 
 </style>
@@ -70,10 +93,18 @@ button:hover{
 <body>
 
 <div class="container">
-  <h1>Rifa Solidária 🎯</h1>
-  <p>Escolha seus números e participe!</p>
 
-  <button onclick="irComprar()">Comprar Agora</button>
+  <h1>Rifa Solidária 🎯</h1>
+  <p class="sub">Participe e concorra a um prêmio incrível!</p>
+
+  <div class="info">
+    <p>📅 Sorteio: <span class="destaque">04/04</span></p>
+    <p>💰 Prêmio: <span class="destaque">R$ 500</span></p>
+    <p>🎟️ Valor por número: <span class="destaque">R$ 5</span></p>
+  </div>
+
+  <button onclick="irComprar()">🎯 Comprar Rifa</button>
+
 </div>
 
 <script>
