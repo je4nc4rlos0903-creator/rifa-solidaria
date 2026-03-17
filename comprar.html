@@ -1,108 +1,110 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Escolher número</title>
+<title>Comprar Rifa</title>
 
 <style>
-
-body{
-font-family:Arial;
-text-align:center;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(10,60px);
-gap:10px;
-justify-content:center;
-margin-top:40px;
-}
-
-.numero{
-padding:12px;
-background:#28a745;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-.vendido{
-background:#dc3545;
-cursor:not-allowed;
-}
-
+body{font-family:Arial;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.num{padding:10px;border:1px solid #000;cursor:pointer}
+.selecionado{background:green;color:white}
+.indisponivel{background:red;color:white}
 </style>
 
 </head>
-
 <body>
 
-<h1>Escolha seu número</h1>
+<h1>Escolha seus números</h1>
 
-<div class="grid" id="numeros"></div>
+<div id="grid" class="grid"></div>
+
+<h2 id="resumo"></h2>
+
+<button onclick="pagar()">Pagar</button>
 
 <script>
 
-const SUPABASE_URL="https://qswajeisicdtsmmqokna.supabase.co";
+const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 
-const SUPABASE_KEY="sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
+let selecionados = [];
 
-async function carregarNumeros(){
+fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
+  headers:{
+    apikey: SUPABASE_KEY,
+    Authorization:"Bearer "+SUPABASE_KEY
+  }
+})
+.then(res=>res.json())
+.then(data=>{
+  const grid = document.getElementById("grid");
 
-const response=await fetch(
-SUPABASE_URL+"/rest/v1/numeros_rifa?select=numero,status&order=numero.asc",
-{
-headers:{
-apikey:SUPABASE_KEY,
-Authorization:"Bearer "+SUPABASE_KEY
-}
-}
-);
+  data.forEach(n=>{
+    const div = document.createElement("div");
+    div.innerText = n.numero;
+    div.classList.add("num");
 
-const numeros=await response.json();
+    if(n.status !== "disponivel"){
+      div.classList.add("indisponivel");
+    } else {
+      div.onclick = ()=>{
+        div.classList.toggle("selecionado");
 
-const container=document.getElementById("numeros");
+        if(selecionados.includes(n.numero)){
+          selecionados = selecionados.filter(x=>x!==n.numero);
+        } else {
+          selecionados.push(n.numero);
+        }
 
-container.innerHTML="";
+        atualizar();
+      }
+    }
 
-numeros.forEach(n=>{
-
-let div=document.createElement("div");
-
-div.innerText=n.numero;
-
-if(n.status==="disponivel"){
-
-div.className="numero";
-
-div.onclick=async()=>{
-
-const r=await fetch("/api/criar-pagamento");
-
-const data=await r.json();
-
-window.location.href=data.link;
-
-};
-
-}else{
-
-div.className="numero vendido";
-
-}
-
-container.appendChild(div);
-
+    grid.appendChild(div);
+  });
 });
 
+function atualizar(){
+  document.getElementById("resumo").innerText =
+  "Selecionados: "+selecionados.join(", ")+" | Total: R$"+(selecionados.length*5);
 }
 
-carregarNumeros();
+async function pagar(){
+
+  if(selecionados.length === 0){
+    alert("Escolha um número!");
+    return;
+  }
+
+  // reservar números
+  for(let num of selecionados){
+    await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
+      method:"PATCH",
+      headers:{
+        "Content-Type":"application/json",
+        apikey: SUPABASE_KEY,
+        Authorization:"Bearer "+SUPABASE_KEY
+      },
+      body: JSON.stringify({status:"reservado"})
+    });
+  }
+
+  const res = await fetch("/api/pagar",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      numeros: selecionados,
+      total: selecionados.length*5
+    })
+  });
+
+  const data = await res.json();
+
+  window.location.href = data.init_point;
+}
 
 </script>
 
 </body>
-
 </html>
