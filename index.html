@@ -1,83 +1,84 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Rifa Solidária</title>
 
 <style>
 
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
 body{
-font-family: Arial;
-text-align:center;
-background:#f5f5f5;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+              url("fundo.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
 }
 
 .container{
-margin-top:100px;
+  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.5);
+  padding:40px;
+  border-radius:20px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+h1{
+  font-size:40px;
+  margin-bottom:20px;
+}
+
+p{
+  font-size:18px;
+  margin-bottom:30px;
 }
 
 button{
-padding:15px 30px;
-font-size:18px;
-background:#28a745;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:30px;
+  background: linear-gradient(45deg, #00ff88, #00ccff);
+  color:black;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+button:hover{
+  transform:scale(1.1);
+  box-shadow:0 0 15px #00ff88;
 }
 
 </style>
 
 </head>
-
 <body>
 
 <div class="container">
+  <h1>Rifa Solidária 🎯</h1>
+  <p>Escolha seus números e participe!</p>
 
-<h1>Rifa Solidária</h1>
-
-<h2>Prêmio: R$500</h2>
-
-<p>Valor de cada número: R$5</p>
-
-<p id="disponiveis">Carregando números...</p>
-
-<br>
-
-<a href="comprar.html">
-<button>Comprar Rifa</button>
-</a>
-
+  <button onclick="irComprar()">Comprar Agora</button>
 </div>
 
 <script>
-
-const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
-
-const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
-
-async function carregarDisponiveis(){
-
-const response = await fetch(
-SUPABASE_URL+"/rest/v1/numeros_rifa?status=eq.disponivel&select=numero",
-{
-headers:{
-apikey:SUPABASE_KEY,
-Authorization:"Bearer "+SUPABASE_KEY
+function irComprar(){
+  window.location.href = "comprar.html";
 }
-}
-);
-
-const data = await response.json();
-
-document.getElementById("disponiveis").innerText =
-"Números disponíveis: "+data.length;
-
-}
-
-carregarDisponiveis();
-
 </script>
 
 </body>
