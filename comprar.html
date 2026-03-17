@@ -97,10 +97,11 @@ async function pagar(){
           apikey: SUPABASE_KEY,
           Authorization:"Bearer "+SUPABASE_KEY
         },
-        body: JSON.stringify({
-          status:"reservado",
-          nome: nome
-        })
+       body: JSON.stringify({
+  status:"reservado",
+  nome: nome,
+  tempo_reserva: new Date().toISOString()
+})
       });
     }
 
