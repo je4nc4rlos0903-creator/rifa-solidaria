@@ -4,237 +4,167 @@
 <meta charset="UTF-8">
 <title>Comprar Rifa</title>
 
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, sans-serif;
-}
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 
 body{
-  min-height:100vh;
-  text-align:center;
-  padding:30px;
-
   background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
               url("fundo.jpg");
-
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: white;
-}
-
-.container{
-  backdrop-filter: blur(12px);
-  background: rgba(0,0,0,0.55);
-  padding:30px;
-  border-radius:20px;
-  max-width:900px;
-  margin:auto;
-  box-shadow:0 0 30px rgba(0,0,0,0.6);
+  color:white;
+  text-align:center;
+  padding:20px;
 }
 
 h1{
-  margin-bottom:20px;
+  margin-bottom:10px;
 }
 
 input{
-  padding:12px;
-  margin:10px;
-  width:200px;
+  padding:10px;
   border-radius:10px;
   border:none;
-  outline:none;
-  font-size:16px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(10,1fr);
-  gap:8px;
-  margin-top:20px;
-}
-
-.num{
-  padding:12px;
-  border-radius:10px;
-  background: rgba(255,255,255,0.1);
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.num:hover{
-  background: rgba(255,255,255,0.3);
-}
-
-.selecionado{
-  background:#00ff88;
-  color:black;
-  font-weight:bold;
-}
-
-#resumo{
-  margin-top:20px;
-  font-size:18px;
+  margin:5px;
+  width:200px;
 }
 
 button{
-  margin-top:20px;
-  padding:15px 30px;
-  font-size:18px;
+  padding:12px 20px;
   border:none;
-  border-radius:30px;
+  border-radius:20px;
   background: linear-gradient(45deg, #00ff88, #00ccff);
-  color:black;
-  cursor:pointer;
-  transition:0.3s;
   font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
 }
 
-button:hover{
-  transform:scale(1.05);
-  box-shadow:0 0 20px #00ff88;
+.grid{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:20px;
 }
 
+.numero{
+  width:60px;
+  height:60px;
+  margin:5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  cursor:pointer;
+  background:#222;
+}
+
+.numero.selecionado{
+  background:#00ff88;
+  color:black;
+}
 </style>
-
 </head>
+
 <body>
 
-<div class="container">
+<h1>🎯 Escolha seus números</h1>
 
-  <h1>Escolha seus números 🎯</h1>
+<input type="text" id="nome" placeholder="Seu nome"><br>
+<input type="text" id="telefone" placeholder="Seu telefone"><br>
 
-  <input type="text" id="nome" placeholder="Seu nome">
-  <input type="text" id="telefone" placeholder="Seu telefone">
+<div class="grid" id="grid"></div>
 
-  <div id="grid" class="grid"></div>
-
-  <h2 id="resumo"></h2>
-
-  <button onclick="pagar()">💰 Pagar</button>
-
-</div>
+<button onclick="pagar()" id="btnPagar">💳 Pagar</button>
 
 <script>
+// 🔗 CONFIGURAÇÃO SUPABASE (JÁ PREENCHIDO PRA VOCÊ)
+const supabase = window.supabase.createClient(
+  "https://qswajeisicdtsmmqokna.supabase.co",
+  "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2"
+);
 
-const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
-const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
+let numerosSelecionados = [];
 
-let selecionados = [];
-
-// BUSCAR NÚMEROS DISPONÍVEIS
-fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?status=eq.disponivel`, {
-  headers:{
-    apikey: SUPABASE_KEY,
-    Authorization:"Bearer "+SUPABASE_KEY
-  }
-})
-.then(res => res.json())
-.then(data => {
+// 🔥 carregar números disponíveis
+async function carregar(){
+  const { data } = await supabase
+    .from("rifa")
+    .select("*")
+    .eq("status", "disponivel");
 
   const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
   data.forEach(n => {
-
     const div = document.createElement("div");
+    div.className = "numero";
     div.innerText = n.numero;
-    div.classList.add("num");
 
-    div.onclick = ()=>{
-      div.classList.toggle("selecionado");
-
-      if(selecionados.includes(n.numero)){
-        selecionados = selecionados.filter(x=>x!==n.numero);
-      } else {
-        selecionados.push(n.numero);
-      }
-
-      atualizar();
-    }
+    div.onclick = () => selecionar(n.numero, div);
 
     grid.appendChild(div);
-
   });
-
-});
-
-// RESUMO
-function atualizar(){
-  document.getElementById("resumo").innerText =
-    "Selecionados: " + selecionados.join(", ") +
-    " | Total: R$" + (selecionados.length * 5);
 }
 
-// PAGAMENTO
-async function pagar(){
+// selecionar número
+function selecionar(num, el){
+  if(numerosSelecionados.includes(num)){
+    numerosSelecionados = numerosSelecionados.filter(n => n !== num);
+    el.classList.remove("selecionado");
+  }else{
+    numerosSelecionados.push(num);
+    el.classList.add("selecionado");
+  }
+}
 
+// 💳 PAGAMENTO
+async function pagar(){
   const nome = document.getElementById("nome").value;
   const telefone = document.getElementById("telefone").value;
 
-  if(!nome){
-    alert("Digite seu nome!");
+  if(!nome || numerosSelecionados.length === 0){
+    alert("Preencha nome e escolha números!");
     return;
   }
 
-  if(!telefone){
-    alert("Digite seu telefone!");
-    return;
-  }
+  // salvar para usar depois no sucesso.html
+  localStorage.setItem("nome", nome);
+  localStorage.setItem("numeros", JSON.stringify(numerosSelecionados));
 
-  if(selecionados.length === 0){
-    alert("Escolha um número!");
-    return;
-  }
+  // loading
+  const btn = document.getElementById("btnPagar");
+  btn.innerText = "⏳ Processando...";
+  btn.disabled = true;
 
-  try {
+  // reservar números
+  await supabase
+    .from("rifa")
+    .update({
+      status: "reservado",
+      nome: nome,
+      telefone: telefone
+    })
+    .in("numero", numerosSelecionados);
 
-    for(let num of selecionados){
+  // criar pagamento
+  const res = await fetch("/api/pagar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nome,
+      telefone,
+      numeros: numerosSelecionados
+    })
+  });
 
-      await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
-        method:"PATCH",
-        headers:{
-          "Content-Type":"application/json",
-          apikey: SUPABASE_KEY,
-          Authorization:"Bearer "+SUPABASE_KEY
-        },
-        body: JSON.stringify({
-          status:"reservado",
-          nome: nome,
-          telefone: telefone
-        })
-      });
+  const data = await res.json();
 
-    }
-
-    const res = await fetch("/api/pagar",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        numeros: selecionados,
-        nome: nome,
-        telefone: telefone
-      })
-    });
-
-    const data = await res.json();
-
-    if(data.init_point){
-      window.location.href = data.init_point;
-    } else {
-      alert("Erro ao gerar pagamento");
-    }
-
-  } catch (e){
-    console.error(e);
-    alert("Erro no pagamento");
-  }
-
+  // redirecionar pro pagamento
+  window.location.href = data.init_point;
 }
 
+carregar();
 </script>
 
 </body>
