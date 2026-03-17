@@ -29,9 +29,9 @@ export default async function handler(req, res){
           },
 
           back_urls: {
-            success: "https://SEU-SITE.vercel.app/sucesso.html",
-            failure: "https://SEU-SITE.vercel.app/erro.html",
-            pending: "https://SEU-SITE.vercel.app/pendente.html"
+            success: "https://rifa-solidaria2.vercel.app/sucesso.html",
+            failure: "https://rifa-solidaria2.vercel.app/erro.html",
+            pending: "https://rifa-solidaria2.vercel.app/pendente.html"
           },
 
           auto_return: "approved"
