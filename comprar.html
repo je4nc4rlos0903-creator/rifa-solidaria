@@ -17,6 +17,11 @@ body{font-family:Arial;text-align:center}
 
 <h1>Escolha seus números</h1>
 
+<label>
+  <input type="checkbox" id="filtro" onchange="render()">
+  Mostrar apenas disponíveis
+</label>
+
 <div id="grid" class="grid"></div>
 
 <h2 id="resumo"></h2>
@@ -29,6 +34,7 @@ const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
 const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 
 let selecionados = [];
+let todosNumeros = [];
 
 fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
   headers:{
@@ -38,9 +44,23 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
 })
 .then(res=>res.json())
 .then(data=>{
-  const grid = document.getElementById("grid");
+  todosNumeros = data;
+  render();
+});
 
-  data.forEach(n=>{
+function render(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  const apenasDisponiveis = document.getElementById("filtro").checked;
+
+  let lista = todosNumeros;
+
+  if(apenasDisponiveis){
+    lista = lista.filter(n => n.status === "disponivel");
+  }
+
+  lista.forEach(n=>{
     const div = document.createElement("div");
     div.innerText = n.numero;
     div.classList.add("num");
@@ -63,7 +83,7 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
 
     grid.appendChild(div);
   });
-});
+}
 
 function atualizar(){
   document.getElementById("resumo").innerText =
