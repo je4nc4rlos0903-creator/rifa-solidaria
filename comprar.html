@@ -36,6 +36,7 @@ const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 let selecionados = [];
 let todosNumeros = [];
 
+// BUSCAR NÚMEROS
 fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
   headers:{
     apikey: SUPABASE_KEY,
@@ -48,26 +49,25 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
   render();
 });
 
+// RENDERIZAR
 function render(){
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
 
   const apenasDisponiveis = document.getElementById("filtro").checked;
 
-  let lista = todosNumeros;
+  todosNumeros.forEach(n => {
 
-  if(apenasDisponiveis){
-    lista = lista.filter(n => n.status === "disponivel");
-  }
+    // FILTRO
+    if(apenasDisponiveis && n.status !== "disponivel") return;
 
-  lista.forEach(n=>{
     const div = document.createElement("div");
     div.innerText = n.numero;
     div.classList.add("num");
 
-    if(n.status !== "disponivel"){
-      div.classList.add("indisponivel");
-    } else {
+    // DISPONÍVEL
+    if(n.status === "disponivel"){
+
       div.onclick = ()=>{
         div.classList.toggle("selecionado");
 
@@ -79,17 +79,24 @@ function render(){
 
         atualizar();
       }
+
+    } else {
+      div.classList.add("indisponivel");
     }
 
     grid.appendChild(div);
+
   });
 }
 
+// ATUALIZAR RESUMO
 function atualizar(){
   document.getElementById("resumo").innerText =
-  "Selecionados: "+selecionados.join(", ")+" | Total: R$"+(selecionados.length*5);
+  "Selecionados: "+selecionados.join(", ")+
+  " | Total: R$"+(selecionados.length*5);
 }
 
+// PAGAMENTO
 async function pagar(){
 
   if(selecionados.length === 0){
@@ -97,7 +104,7 @@ async function pagar(){
     return;
   }
 
-  // reservar números
+  // RESERVAR NÚMEROS
   for(let num of selecionados){
     await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
       method:"PATCH",
@@ -110,6 +117,7 @@ async function pagar(){
     });
   }
 
+  // CHAMAR API DE PAGAMENTO
   const res = await fetch("/api/pagar",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
