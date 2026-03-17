@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sucesso</title>
+
+<style>
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+.box{
+  background:#1e293b;
+  padding:40px;
+  border-radius:20px;
+}
+h1{color:#00ff88}
+button{
+  margin-top:20px;
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  background:#00ff88;
+  cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<div class="box">
+  <h1>✅ Pagamento aprovado!</h1>
+  <p>Sua rifa foi comprada com sucesso.</p>
+  <button onclick="voltar()">Voltar</button>
+</div>
+
+<script>
+function voltar(){
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
