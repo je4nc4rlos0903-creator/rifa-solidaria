@@ -2,13 +2,12 @@ export default async function handler(req, res){
 
   try {
 
-    const { numeros } = req.body;
+    const { numeros, nome } = req.body;
 
     if(!numeros || numeros.length === 0){
       return res.status(400).json({ error: "Sem números" });
     }
 
-    // criar preferência no Mercado Pago
     const response = await fetch(
       "https://api.mercadopago.com/checkout/preferences",
       {
@@ -26,7 +25,8 @@ export default async function handler(req, res){
             }
           ],
           metadata: {
-            numeros: numeros
+            numeros: numeros,
+            nome: nome
           }
         })
       }
@@ -34,17 +34,13 @@ export default async function handler(req, res){
 
     const data = await response.json();
 
-    console.log("Resposta MP:", data);
-
-    // retornar link de pagamento
     res.status(200).json({
       init_point: data.init_point
     });
 
   } catch (error) {
 
-    console.error("Erro pagar:", error);
-
+    console.error(error);
     res.status(500).json({ error: "Erro ao criar pagamento" });
 
   }
