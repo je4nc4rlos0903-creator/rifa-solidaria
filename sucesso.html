@@ -28,6 +28,7 @@ body{
   padding:40px;
   border-radius:20px;
   box-shadow:0 0 30px rgba(0,0,0,0.6);
+  max-width:400px;
 }
 
 h1{
@@ -36,11 +37,18 @@ h1{
 }
 
 p{
-  margin-bottom:20px;
+  margin-bottom:10px;
   font-size:18px;
 }
 
+.numeros{
+  margin:15px 0;
+  font-weight:bold;
+  color:#00ffcc;
+}
+
 button{
+  margin-top:10px;
   padding:12px 25px;
   border:none;
   border-radius:25px;
@@ -48,12 +56,18 @@ button{
   font-weight:bold;
   cursor:pointer;
   transition:0.3s;
+  width:100%;
 }
 
 button:hover{
   transform:scale(1.05);
   box-shadow:0 0 15px #00ff88;
 }
+
+.whatsapp{
+  background: linear-gradient(45deg, #25D366, #128C7E);
+}
+
 </style>
 
 </head>
@@ -61,11 +75,30 @@ button:hover{
 
 <div class="container">
   <h1>✅ Pagamento aprovado!</h1>
-  <p>Sua rifa foi comprada com sucesso 🎉</p>
+  <p>Obrigado pela compra 🎉</p>
+
+  <div class="numeros" id="numeros"></div>
+
+  <button class="whatsapp" onclick="whatsapp()">📲 Enviar comprovante</button>
   <button onclick="voltar()">Voltar ao início</button>
 </div>
 
 <script>
+const nome = localStorage.getItem("nome") || "Cliente";
+const numeros = JSON.parse(localStorage.getItem("numeros") || "[]");
+
+// mostrar números na tela
+document.getElementById("numeros").innerText =
+  numeros.length > 0 ? "Seus números: " + numeros.join(", ") : "";
+
+function whatsapp(){
+  const mensagem = encodeURIComponent(
+    `Olá! Acabei de comprar a rifa.\n\nNome: ${nome}\nNúmeros: ${numeros.join(", ")}`
+  );
+
+  window.open(`https://wa.me/5581997975227?text=${mensagem}`, "_blank");
+}
+
 function voltar(){
   window.location.href = "index.html";
 }
