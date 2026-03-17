@@ -16,6 +16,9 @@ body{font-family:Arial;text-align:center}
 
 <h1>Escolha seus números</h1>
 
+<input type="text" id="nome" placeholder="Seu nome">
+<br><br>
+
 <div id="grid" class="grid"></div>
 
 <h2 id="resumo"></h2>
@@ -71,35 +74,59 @@ function atualizar(){
 // PAGAMENTO
 async function pagar(){
 
-  if(selecionados.length === 0){
-    alert("Escolha um número!");
-    return;
-  }
+  try {
 
-  // RESERVAR
-  for(let num of selecionados){
-    await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
-      method:"PATCH",
-      headers:{
-        "Content-Type":"application/json",
-        apikey: SUPABASE_KEY,
-        Authorization:"Bearer "+SUPABASE_KEY
-      },
-      body: JSON.stringify({status:"reservado"})
+    const nome = document.getElementById("nome").value;
+
+    if(!nome){
+      alert("Digite seu nome!");
+      return;
+    }
+
+    if(selecionados.length === 0){
+      alert("Escolha um número!");
+      return;
+    }
+
+    // RESERVAR COM NOME
+    for(let num of selecionados){
+      await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}&status=eq.disponivel`,{
+        method:"PATCH",
+        headers:{
+          "Content-Type":"application/json",
+          apikey: SUPABASE_KEY,
+          Authorization:"Bearer "+SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          status:"reservado",
+          nome: nome
+        })
+      });
+    }
+
+    const res = await fetch("/api/pagar",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        numeros: selecionados,
+        nome: nome
+      })
     });
+
+    const data = await res.json();
+
+    if(!data.init_point){
+      alert("Erro ao gerar pagamento");
+      return;
+    }
+
+    window.location.href = data.init_point;
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao pagar!");
   }
 
-  const res = await fetch("/api/pagar",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      numeros: selecionados
-    })
-  });
-
-  const data = await res.json();
-
-  window.location.href = data.init_point;
 }
 
 </script>
