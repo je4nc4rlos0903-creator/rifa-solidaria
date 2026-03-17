@@ -1,3 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Comprar Rifa</title>
+
+<style>
+body{font-family:Arial;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:20px}
+.num{padding:10px;border:1px solid #000;cursor:pointer}
+.selecionado{background:green;color:white}
+</style>
+
+</head>
+<body>
+
+<h1>Escolha seus números</h1>
+
+<input type="text" id="nome" placeholder="Seu nome">
+<br><br>
+<input type="text" id="telefone" placeholder="Seu telefone">
+<br><br>
+
+<div id="grid" class="grid"></div>
+
+<h2 id="resumo"></h2>
+
+<button onclick="pagar()">Pagar</button>
+
 <script>
 
 const SUPABASE_URL = "https://qswajeisicdtsmmqokna.supabase.co";
@@ -5,7 +34,8 @@ const SUPABASE_KEY = "sb_publishable_7VLK-dHs3ybJKV2eBcS00Q_RzwvrmD2";
 
 let selecionados = [];
 
-fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
+// BUSCAR NÚMEROS
+fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?status=eq.disponivel`, {
   headers:{
     apikey: SUPABASE_KEY,
     Authorization:"Bearer "+SUPABASE_KEY
@@ -14,14 +44,16 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
 .then(res => res.json())
 .then(data => {
 
-  console.log("DADOS DO SUPABASE:", data); // 👈 IMPORTANTE
+  console.log("NUMEROS:", data);
 
   const grid = document.getElementById("grid");
 
-  data.forEach(n => {
+  if(!data || data.length === 0){
+    grid.innerHTML = "<p>Nenhum número disponível</p>";
+    return;
+  }
 
-    // MOSTRAR TODOS DISPONIVEIS SIMPLES (SEM EXPIRAÇÃO)
-    if(n.status !== "disponivel") return;
+  data.forEach(n => {
 
     const div = document.createElement("div");
     div.innerText = n.numero;
@@ -43,11 +75,88 @@ fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?select=*`, {
 
   });
 
+})
+.catch(err=>{
+  console.error("ERRO:", err);
+  alert("Erro ao carregar números");
 });
 
+// RESUMO
 function atualizar(){
   document.getElementById("resumo").innerText =
-  "Selecionados: "+selecionados.join(", ");
+    "Selecionados: " + selecionados.join(", ") +
+    " | Total: R$" + (selecionados.length * 5);
+}
+
+// PAGAMENTO
+async function pagar(){
+
+  const nome = document.getElementById("nome").value;
+  const telefone = document.getElementById("telefone").value;
+
+  if(!nome){
+    alert("Digite seu nome!");
+    return;
+  }
+
+  if(!telefone){
+    alert("Digite seu telefone!");
+    return;
+  }
+
+  if(selecionados.length === 0){
+    alert("Escolha um número!");
+    return;
+  }
+
+  try {
+
+    // RESERVAR NÚMEROS
+    for(let num of selecionados){
+
+      await fetch(`${SUPABASE_URL}/rest/v1/numeros_rifa?numero=eq.${num}`,{
+        method:"PATCH",
+        headers:{
+          "Content-Type":"application/json",
+          apikey: SUPABASE_KEY,
+          Authorization:"Bearer "+SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          status:"reservado",
+          nome: nome,
+          telefone: telefone
+        })
+      });
+
+    }
+
+    // GERAR PAGAMENTO
+    const res = await fetch("/api/pagar",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        numeros: selecionados,
+        nome: nome,
+        telefone: telefone
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.init_point){
+      window.location.href = data.init_point;
+    } else {
+      alert("Erro ao gerar pagamento");
+    }
+
+  } catch (e){
+    console.error(e);
+    alert("Erro no pagamento");
+  }
+
 }
 
 </script>
+
+</body>
+</html>
